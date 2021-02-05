@@ -1,0 +1,76 @@
+.my_canvas{
+    margin:20px;
+}
+
+body {
+    display:block;
+    margin:0;
+}
+
+#header {
+    background-color:#009b9f;
+    min-height:80px;
+}
+
+#sidebar{
+    width:15%;
+    min-width:180px;
+    min-height:600px;
+    /* margin-right:10px; */
+    /* text-align: center; */
+    background-color:#009b9f;
+
+}
+
+#content{
+    text-align: center;
+    /* background-color:#ff9933; */
+    width:70%;
+}
+#footer{
+
+    background-color:#009b9f;
+    /* background-color:#ffffff; */
+}
+
+.parts{
+    margin-top:10px;
+    margin-bottom:10px;
+    display:flex;
+    /* justify-content:center; */
+    /* text-align: center; */
+}
+
+.menu{
+    margin:10px;
+}
+
+.buttons{
+    text-align:center;
+}
+.page_button{
+    width:50%;
+    font-size:150%;
+    margin:10px;
+    
+}
+
+fieldset{
+    margin: 10px;
+}
+
+.center{
+    text-align:center;
+}
+
+table {
+    overflow :scroll;
+}
+
+.out_table_table{
+    margin:10px;
+}
+
+#mapid{
+    height:600px;
+}

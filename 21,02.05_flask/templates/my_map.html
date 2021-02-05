@@ -1,0 +1,72 @@
+{% extends "index.html" %}
+
+{% block head %}
+    <title>マップ</title>
+    <script src={{ url_for("static", filename="js/my_js.js") }}></script>
+    <link rel="stylesheet" href={{ url_for("static", filename="css/style.css" )}}>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+    crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+    integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+    crossorigin=""></script>
+    
+{% endblock %}
+
+
+{% block content %}
+    
+    <div id="header">
+        中谷研究室<br>
+        <p>～コンピュータウイルスの可視化～</p>
+    </div>
+    
+    <div class="parts">
+        <div id="sidebar">
+            <form action="/out_table" method="GET" class="menu" novalidate>
+                <label for="name">Due : </label>
+                <input type="date" name="due">
+                <br>
+                <fieldset>
+                  <legend class="center">period</legend>
+                  <label><input type="radio" name="period" value="day" checked required>day</label><br>
+                  <label><input type="radio" name="period" value="week"required>week</label><br>
+                  <label><input type="radio" name="period" value="month" required>month</label><br>
+                  <label><input type="radio" name="period" value="year" required>year</label>
+                </fieldset>
+                <input type="submit" value="Enter" required>
+              </form>
+              <form action="/" method="POST" class="menu">
+                <label for="name">TOP : </label>
+                <input type="submit">
+              </form>
+        </div>
+        <div id="content">
+            <div id="mapid"></div>
+
+            <script>
+                var latitude = {{ latitude | tojson }};
+                var longitude = {{ longitude | tojson }};
+                var mymap = L.map('mapid').setView([latitude , longitude],10);
+        
+                L.tileLayer(
+                    'https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', 
+                    {
+                        attribution: '<a href="https://maps.gsi.go.jp/development/ichiran.html" target="_blank">国土地理院</a>',
+                        maxZoom: 8,
+                    }
+           ).addTo(mymap);
+           </script>
+             <script>
+                var marker = L.marker([latitude, longitude]).addTo(mymap);
+                var marker = L.marker([latitude+10, longitude+10]).addTo(mymap);
+                marker.bindPopup("japan");
+            </script>
+
+
+        </div>
+    </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
+        <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <div id = "footer">footer</div>
+{% endblock %}

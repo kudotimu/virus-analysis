@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    {% block head %}{% endblock %}
+  </head>
+  <body>
+    <form action="/" method="POST">
+      <label for="name">Due : </label>
+      <input type="date" name="due" required>
+      <!--<input type="submit" value="Create">-->
+      <br>
+      <input type="radio" name="period" value="day">day<br>
+      <input type="radio" name="period" value="week">week<br>
+      <input type="radio" name="period" value="month">month<br>
+      <input type="radio" name="period" value="year">year<br>
+      <input type="submit" value="Enter">
+    </form>
+    {% block body %}{% endblock %}
+  </body>
+
+</html>

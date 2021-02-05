@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>マップ</title>
+<script src={{ url_for("static", filename="js/my_js.js") }}></script>
+<link rel="stylesheet" href={{ url_for("static", filename="css/style.css" )}}>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script> -->
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+<!-- <script src={{ url_for("static", filename="country_map.json") }}></script> -->
+<title>test</title>
+
+<style>
+
+    .area {
+        fill: silver;
+        stroke: white;
+    }
+    .popup {
+        fill: black;
+        font-size: 10pt;
+    }
+    </style>
+
+{% endblock %}
+
+{% block body %}
+<div id="header">
+    中谷研究室<br>
+    <p>～コンピュータウイルスの可視化～</p>
+</div>
+<div class="parts">
+    <div id="sidebar">
+        <form action="/world_map" method="POST" class="menu">
+            <label for="name">Due : </label>
+            <input type="date" name="due" id="due" value="" required>
+            <br>
+            <fieldset>
+                <legend class="center" id="aaa">period</legend>
+                <label><input type="radio" name="period" value="day" checked>day</label><br>
+                <label><input type="radio" name="period" value="week">week</label><br>
+                <label><input type="radio" name="period" value="month">month</label><br>
+                <label><input type="radio" name="period" value="year">year</label>
+            </fieldset>
+            <input type="submit" value="Enter">
+        </form>
+        <div class="buttons">
+        <button onclick="location.href='/'" class='page_button'>Graph</button>
+        <button onclick="location.href='/out_table'" class='page_button'>Table</button>
+        <button class='page_button' disabled>map</button>
+        </div>
+    </div>
+    <div id="content">
+        <div class="my_canvas">
+            <canvas id="myChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+
+        $(function every() {
+            var select_due = document.getElementById("due").value = {{ due_uni | tojson}};
+            console.log(select_due);
+        });
+
+        var width = window.innerWidth,
+            height = window.innerHeight;
+        var scale = (width/2/Math.PI);
+
+        //#contentの横幅と縦幅を取得。
+        // var content = document.getElementById('content');
+        // console.log(content.getBoundingClientRect().width);
+        // var width = content.getBoundingClientRect().Width;
+        // var height = content.getBoundingClientRect().height;
+        var scale = (width/2/Math.PI);
+        // console.log(window.innerWidth,window.innerHeight);
+        // var projection = d3.geoMercator()
+        // var array1 = [ 'China', 'Rusia', 'Australia', 'Angola' ];
+        var country = {{ countries | tojson }};
+        var conn = {{ connections | tojson }};
+        var max = {{connections_max | tojson }};
+        // console.log(country);
+        // console.log(conn);
+
+        //グラデーション用
+        var color_max = 100;
+        var color = d3.scaleLinear()
+        .domain([0,color_max])
+        .range(["white","red"]);
+
+        var svg = d3.select("#content").append("svg")
+        .attr("width",width)
+        .attr("height",height);
+
+        // var color = d3.schemeCategory10[];
+     
+        // 地理座標から画面表示への投影法の設定。
+        var mercator = d3.geoMercator()
+            // .center([ 136.0, 35.6 ])
+            .center([ 0, 0 ])
+            .translate([width/2, height/2])
+            .scale(scale);
+        
+        // geojsonからpath要素を作るための設定。 
+        var geopath = d3.geoPath()
+        .projection(mercator);
+        
+        console.log("hageso")
+        // topojsonファイルの読み込み
+        d3.json("./../static/country_map.json").then(function(data) {
+            //console.log(data);
+            
+            // topojsonからgeojsonへの変換。
+            var geoJp = topojson.feature(data, data.objects.country_map);
+            //console.log(geoJp);
+            //console.log(Object.keys(data.objects.country_map.geometries));
+            // console.log(data.objects.country_map.geometries[0].properties.NAME);//fizi
+            var map = svg.selectAll("path")
+                .data(geoJp.features) // geojsonのすべて座標データを読み込む。
+            .enter()
+                .append("path")
+                .attr("class", function(d) {
+                    // console.log(d);
+                    return d.id; })
+                .attr("d", geopath) // geojsonからpath要素に変換する。
+                .style("stroke","gray")
+                .style("fill", function(d){
+                    // if(d.properties.NAME == 'Russia'){
+                    var num = country.indexOf(d.properties.NAME);//配列countryにdの国が存在するとき、オフセットを返す。ないときは-1
+                    if(country.includes(d.properties.NAME) && num > -1){ //配列countryにdの国名が存在するか。（返り値はTrue/False)
+                        //country.indexOf()は返り値に0を返すこともあるため、includes()と組み合わせて使っている。
+                        // console.log(num);
+                        // return 'red';
+                        // console.log(Math.round((conn[num]/max)*color_max));//Math.round()で四捨五入
+                        // console.log((conn[num]/max)*10);
+                        return color(Math.round((conn[num]/max)*color_max));
+                    }
+                    else{
+                        return 'white';
+                    }
+                })
+                .on("mouseover",function(d){
+
+                    const label = d.properties.NAME;
+                    // console.log(label);
+                    // console.log("over");
+                    // d3.select(this).style("fill","red").style("stroke","green");
+
+                    const group = svg.append('g').attr('id','label-group');
+                    //console.log(group);
+
+                    const rectElement = group
+                    .append('rect')
+                    .attr('id','label-rect')
+                    .attr('stroke','black')
+                    .attr('stroke-width',0.5)
+                    .attr('fill','white');
+
+                    suuji = 0
+                    const textElement = group;
+
+                    var num = country.indexOf(d.properties.NAME);
+                    if(country.includes(d.properties.NAME) && num > -1){
+                        // console.log(conn[num]);
+                        suuji = conn[num];
+                    }
+                    else{
+                        // console.log('No connections');
+                    }
+
+                    textElement
+                    .append('text')
+                    .attr('id','label-text')
+                    .text(label+' : '+suuji);
+                    // .text(label);
+
+                    const padding = {x:5, y:0};
+                    const textSize = textElement.node().getBBox();
+                    // console.log(textSize);
+
+                    rectElement
+                    .attr('x', textSize.x - padding.x)
+                    .attr('y', textSize.y - padding.y)
+                    // .attr('x',100)
+                    // .attr('y',100)
+                    .attr('width', textSize.width + padding.x * 2)
+                    .attr('height', textSize.height + padding.y * 2);
+                })
+
+                .on("mousemove",function(){
+                    //マウスの位置を取得
+                    const labelPos = {
+                        x: d3.event.offsetX ,
+                        y: d3.event.offsetY 
+                    };
+
+                    svg
+                    //label-groupの位置を変える（マウスの右上にしている）
+                    .select("#label-group")
+                    .attr('transform',"translate("+(labelPos.x+10)+","+(labelPos.y-10)+")");
+                    // console.log("move");
+                })
+                
+                .on("mouseout",function(){
+                    //label-groupの削除
+                    svg.select('#label-group').remove();
+                    // d3.select(this).style("fill","white").style("stroke","gray");
+                    // console.log('out');
+                });
+            
+        });
+    </script>
+
+<script>
+    var select_due = document.getElementById("due").value = {{ due_uni | tojson}};
+    // console.log(select_due);
+    var radio = document.getElementsByName("period");
+    var my_period = {{ period | tojson }};
+    for(var i = 0; i < radio.length; i++){
+        // console.log(radio[i]);
+        if(radio[i].value == my_period){
+            // document.getElementsByName("day").checked = false;
+            // document.getElementsByName(my_period).checked == true;
+            console.log("選択された値：", radio[i].value);
+        }
+    }
+  </script>
+</div>
+
+<div id="footer">footer</div>
+
+
+{% endblock %}

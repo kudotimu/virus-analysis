@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>マップ</title>
+<script src={{ url_for("static", filename="js/my_js.js") }}></script>
+<link rel="stylesheet" href={{ url_for("static", filename="css/style.css" )}}>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script> -->
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+
+{% endblock %}
+
+{% block body %}
+<div id="header">
+    中谷研究室<br>
+    <p>～コンピュータウイルスの可視化～</p>
+</div>
+
+<div class="parts">
+    <div id="sidebar">
+        <form action="/" method="POST" class="menu">
+            <label for="name">Due : </label>
+            <input type="date" name="due" id="due" value="" required>
+            <br>
+            <fieldset>
+                <legend class="center" id="aaa">period</legend>
+                <label><input type="radio" name="period" value="day" checked>day</label><br>
+                <label><input type="radio" name="period" value="week">week</label><br>
+                <label><input type="radio" name="period" value="month">month</label><br>
+                <label><input type="radio" name="period" value="year">year</label>
+            </fieldset>
+            <input type="submit" value="Enter">
+        </form>
+        <div class='buttons'>
+        <button class='page_button' disabled>Graph</button><br>
+        <button onclick="location.href='/out_table'" class='page_button'>Table</button><br>
+        <button onclick="location.href='/world_map'" class='page_button'>Map</button>
+        </div>
+
+    </div>
+    <div id="content">
+        <div class="my_canvas">
+            <canvas id="myChart"></canvas>
+        </div>
+        <div class="my_canvas">
+            <table border="1">
+                <tr>
+                    <th>{{th_period}}</th>
+                    {% for i in list_x %}
+                    <td>{{i}}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th>con</th>
+                    {% for j in list_y %}
+                    <td>{{j}}</td>
+                    {% endfor %}
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <script>
+    $(function () {
+        drawChart();
+        var select_due = document.getElementById("due").value = {{ due_uni | tojson}};
+        console.log(select_due);
+        var radio = document.getElementsByName("period");
+        var my_period = {{ period | tojson }};
+        for(var i = 0; i < radio.length; i++){
+            // console.log(radio[i]);
+            if(radio[i].value == my_period){
+                // document.getElementsByName("day").checked = false;
+                // document.getElementsByName(my_period).checked == true;
+                console.log("選択された値：", radio[i].value);
+            }
+        }
+    });
+
+    function drawChart(){
+                var ctx = document.getElementById('myChart').getContext('2d');
+                var my_x = {{ list_x | tojson }};
+                var my_y = {{ list_y | tojson }};
+                console.log(my_x,my_y);
+                myChart = new Chart(ctx, {
+                display:'title',
+                type: 'bar',
+                data:{
+                    labels:my_x,
+                    datasets:[{
+                        data: my_y, // グラフデータ
+                        backgroundColor: 'rgb(0, 134, 197, 0.7)', // 棒の塗りつぶし色
+                        borderColor: 'rgba(0, 134, 197, 1)', // 棒の枠線の色
+                        borderWidth: 1, // 枠線の太さ
+
+                    }]
+                },
+                options:{
+                    scales:{
+                        xAxes:[{//x軸の設定
+                            scaleLabel:{
+                                display:true,
+                                labelString:'day',
+                                fontSize:16
+                            },
+                            ticks:{
+                                maxRotation:90
+                            }
+                        }],
+                        yAxes:[{//y軸の設定
+                            scaleLabel:{
+                                display:true,
+                                labelString:'connections',
+                                fontSize:16
+                            }
+                        }]
+                    },
+                    responsive: true,
+                    legend:{
+                        display:false,
+                    }
+                }
+            });
+        };
+    </script>
+</div>
+
+<div id="footer">footer</div>
+
+
+{% endblock %}

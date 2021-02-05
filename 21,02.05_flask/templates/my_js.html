@@ -1,0 +1,21 @@
+<html>
+  <head>
+    <script src={{url_for("static",filename="js/my_js.js") }}></script>
+  </head>
+  <body>
+    <script type="text/javascript">
+      function test1(){
+      var list_data = {{ data | tojson }};
+      document.getElementById("hiromu").innerHTML = list_data;
+      console.log(list_data);
+      }
+    </script>
+
+    <input type="button" value="enter" onclick="test1()">
+    <p id="hiromu">
+      {% for data in list_data %}
+      <li>data[0],data[1]</li>
+      {% endfor %}
+      Hiromu Kudo</p>
+  </body>
+</html>

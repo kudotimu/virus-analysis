@@ -1,0 +1,133 @@
+{% extends "index.html" %}
+
+{% block head %}
+    <title>練習</title>
+    <script src={{ url_for("static", filename="js/my_js.js") }}></script>
+    <link rel="stylesheet" href={{ url_for("static", filename="css/style.css" )}}>
+    
+{% endblock %}
+
+
+{% block content %}
+    
+    <script type="text/javascript">
+        let list_data = {{ data | tojson }};
+
+        function add_reversed_data(){
+            var list2 = list_data.reverse();
+            document.getElementById("output_from_html").innerHTML = "new data is" + list2;
+
+        }
+
+    </script>
+    <div id="header">
+        中谷研究室<br>
+        <p>～コンピュータウイルスの可視化～</p>
+    </div>
+    
+    <div class="parts">
+        <div id="sidebar">
+            <form action="/out_table" method="GET" class="menu" novalidate>
+                <label for="name">Due : </label>
+                <input type="date" name="due">
+                <br>
+                <fieldset>
+                  <legend class="center">period</legend>
+                  <label><input type="radio" name="period" value="day" checked required>day</label><br>
+                  <label><input type="radio" name="period" value="week"required>week</label><br>
+                  <label><input type="radio" name="period" value="month" required>month</label><br>
+                  <label><input type="radio" name="period" value="year" required>year</label>
+                </fieldset>
+                <input type="submit" value="Enter" required>
+              </form>
+              <form action="/" method="POST" class="menu">
+                <label for="name">TOP : </label>
+                <input type="submit">
+              </form>
+            </div>
+        <div id="content">
+            <div class="my_canvas">
+                <canvas id="myChart"></canvas>
+            </div>
+            <div class="my_canvas">
+            <table border="1">
+                <tr>
+                    <th>x</th>
+                    {% for i in x %}
+                    <td>{{i}}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th>y</th>
+                    {% for j in y %}
+                    <td>{{j}}</td>
+                    {% endfor %}
+                </tr>
+            </table>
+            </div>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
+        <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+        <script>
+
+            $(function(){
+                drawChart();
+            });
+
+            function drawChart(){
+                var ctx = document.getElementById('myChart').getContext('2d');
+                var x = {{ x | tojson }}
+                var y = {{ y | tojson }}
+                console.log(x,y)
+                myChart = new Chart(ctx, {
+                display:'title',
+                type: 'bar',
+                data:{
+                    labels:x,
+                    datasets:[{
+                        data: y, // グラフデータ
+                        backgroundColor: 'rgb(0, 134, 197, 0.7)', // 棒の塗りつぶし色
+                        borderColor: 'rgba(0, 134, 197, 1)', // 棒の枠線の色
+                        borderWidth: 1, // 枠線の太さ
+
+                    }]
+                },
+                options:{
+                    scales:{
+                        xAxes:[{//x軸の設定
+                            scaleLabel:{
+                                display:true,
+                                labelString:'day',
+                                fontSize:16
+                            },
+                            ticks:{
+                                maxRotation:90
+                            }
+                        }],
+                        yAxes:[{//y軸の設定
+                            scaleLabel:{
+                                display:true,
+                                labelString:'connections',
+                                fontSize:16
+                            }
+                        }]
+                    },
+                    responsive: true,
+                    legend:{
+                        display:false,
+                    }
+                }
+            });
+        }
+        </script>
+    </div>
+    <div id = "footer">footer</div>
+
+
+    
+    <!--
+    <form action="/testpage2" method="POST">
+        <button type="button"  value="1" id = "btn" onclick=drawChart()>enter</button>
+    </form>
+    -->
+{% endblock %}
